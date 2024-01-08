@@ -1,29 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, OnInit } from '@angular/core';
 import { CityStore } from '../../data-access/city.store';
 import { FakeHttpService } from '../../data-access/fake-http.service';
-import { Store } from '../../data-access/store';
-import { CardType } from '../../model/card.model';
-import { City } from '../../model/city.model';
-import { CardComponent } from '../../ui/card/card.component';
+import {
+  CardComponent,
+  CardListItemDirective,
+} from '../../ui/card/card.component';
+import { ListItemComponent } from '../../ui/list-item/list-item.component';
 
 @Component({
   selector: 'app-city-card',
   template: `
     <app-card
-      [list]="cities"
-      [type]="cardType"
-      customClass="bg-indigo-200/50"
-      showingProp="name">
-      <img src="assets/img/city.png" alt="" />
+      [list]="cities()"
+      (add)="addItem()"
+      customClass="bg-indigo-200/50">
+      <img src="assets/img/city.png" alt="" width="200px" />
+      <ng-template let-city card-list-item>
+        <app-list-item (delete)="deleteItem(city.id)">
+          {{ city.country }}
+        </app-list-item>
+      </ng-template>
     </app-card>
   `,
   standalone: true,
-  imports: [CardComponent],
-  providers: [{ provide: Store, useExisting: CityStore }],
+  imports: [CardComponent, ListItemComponent, CardListItemDirective],
 })
 export class CityCardComponent implements OnInit {
-  cities: City[] = [];
-  cardType = CardType.CITY;
+  cities = computed(() => this.store.items());
 
   constructor(
     private http: FakeHttpService,
@@ -32,7 +35,13 @@ export class CityCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.http.fetchCities$.subscribe((cities) => this.store.addAll(cities));
+  }
 
-    this.store.items$.subscribe((cities: City[]) => (this.cities = cities));
+  addItem() {
+    this.store.addOne(this.store.randItem());
+  }
+
+  deleteItem(id: number) {
+    this.store.deleteOne(id);
   }
 }

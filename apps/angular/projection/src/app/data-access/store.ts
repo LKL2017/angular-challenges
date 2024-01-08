@@ -1,30 +1,27 @@
-import { BehaviorSubject } from 'rxjs';
-import { CardItem } from '../model/card.model';
+import { WritableSignal } from '@angular/core';
 
-export class Store<T> {
-  items;
-  items$;
+export class Store<T extends { id: number }> {
+  items!: WritableSignal<T[]>;
 
-  constructor(subject: BehaviorSubject<T[]>) {
-    this.items = subject;
-    this.items$ = this.items.asObservable();
-  }
+  constructor() {}
 
   randItem(): T {
     return {} as T;
   }
 
   addAll(items: T[]) {
-    this.items.next(items);
+    this.items.set(items);
   }
 
   addOne(item: T) {
-    this.items.next([...this.items.value, item]);
+    this.items.update((currentItems: T[]) => {
+      return [...currentItems, item];
+    });
   }
 
   deleteOne(id: number) {
-    this.items.next(
-      this.items.value.filter((item) => (item as CardItem).id !== id),
-    );
+    this.items.update((currentItems: T[]) => {
+      return currentItems.filter((item) => item.id !== id);
+    });
   }
 }

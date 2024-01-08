@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { City } from '../model/city.model';
 import { randomCity } from './fake-http.service';
 import { Store } from './store';
@@ -9,7 +8,8 @@ import { Store } from './store';
 })
 export class CityStore extends Store<City> {
   constructor() {
-    super(new BehaviorSubject<City[]>([]));
+    super();
+    this.items = signal([]);
   }
 
   override randItem() {

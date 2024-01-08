@@ -1,7 +1,22 @@
-import { Component, Input, SkipSelf } from '@angular/core';
-import { Store } from '../../data-access/store';
-import { CardItem, CardType } from '../../model/card.model';
-import { ListItemComponent } from '../list-item/list-item.component';
+import { NgTemplateOutlet } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ContentChild,
+  Directive,
+  EventEmitter,
+  Input,
+  Output,
+  TemplateRef,
+} from '@angular/core';
+
+@Directive({
+  selector: '[card-list-item]',
+  standalone: true,
+})
+export class CardListItemDirective {
+  constructor(public templateRef: TemplateRef<unknown>) {}
+}
 
 @Component({
   selector: 'app-card',
@@ -9,14 +24,13 @@ import { ListItemComponent } from '../list-item/list-item.component';
     <div
       class="flex w-fit flex-col gap-3 rounded-md border-2 border-black p-4"
       [class]="customClass">
-      <ng-content></ng-content>
+      <ng-content select="img"></ng-content>
 
       <section>
         @for (item of list; track item.id) {
-          <app-list-item
-            [name]="item[showingProp]"
-            [id]="item.id"
-            (deleteItem)="deleteItem($event)"></app-list-item>
+          <ng-container
+            [ngTemplateOutlet]="cardListItem.templateRef"
+            [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
         }
       </section>
 
@@ -28,22 +42,18 @@ import { ListItemComponent } from '../list-item/list-item.component';
     </div>
   `,
   standalone: true,
-  imports: [ListItemComponent],
+  imports: [NgTemplateOutlet],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CardComponent {
-  @Input() list: any[] | null = null;
-  @Input() type!: CardType;
-  @Input() showingProp!: string;
+export class CardComponent<T extends { id: number }> {
+  @Input() list: T[] | null = null;
   @Input() customClass = '';
+  @Output() add = new EventEmitter<void>();
+  @ContentChild(CardListItemDirective) cardListItem!: CardListItemDirective;
 
-  constructor(@SkipSelf() private storeService: Store<CardItem>) {}
+  constructor() {}
 
   addNewItem() {
-    const item = this.storeService.randItem();
-    this.storeService.addOne(item);
-  }
-
-  deleteItem(id: number) {
-    this.storeService.deleteOne(id);
+    this.add.emit();
   }
 }

@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { Teacher } from '../model/teacher.model';
 import { randTeacher } from './fake-http.service';
 import { Store } from './store';
@@ -9,7 +8,8 @@ import { Store } from './store';
 })
 export class TeacherStore extends Store<Teacher> {
   constructor() {
-    super(new BehaviorSubject<Teacher[]>([]));
+    super();
+    this.items = signal([]);
   }
 
   override randItem() {
