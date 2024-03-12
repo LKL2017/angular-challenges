@@ -1,1 +1,2 @@
-export * from './lib/main-shell.module';
+import { appRoutes } from './lib/main-shell.routes';
+export default appRoutes;
