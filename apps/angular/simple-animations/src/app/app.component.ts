@@ -1,3 +1,12 @@
+import {
+  animate,
+  keyframes,
+  query,
+  stagger,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component } from '@angular/core';
 
 @Component({
@@ -19,7 +28,7 @@ import { Component } from '@angular/core';
   `,
   template: `
     <div class="mx-20 my-40 flex gap-5">
-      <section>
+      <section @fadeIn>
         <div>
           <h3>2008</h3>
           <p>
@@ -51,7 +60,7 @@ import { Component } from '@angular/core';
         </div>
       </section>
 
-      <section>
+      <section @listStage>
         <div class="list-item">
           <span>Name:</span>
           <span>Samuel</span>
@@ -84,5 +93,38 @@ import { Component } from '@angular/core';
       </section>
     </div>
   `,
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ transform: 'translateX(-10%)', opacity: 0.2 }),
+        animate(
+          '0.4s ease-out',
+          style({ transform: 'translateX(0)', opacity: 1 }),
+        ),
+      ]),
+    ]),
+    trigger('listStage', [
+      transition(':enter', [
+        query('.list-item', [
+          style({ transform: '*', opacity: 0 }),
+          stagger(
+            50,
+            animate(
+              '0.2s ease-in',
+              keyframes([
+                style({ transform: 'translateX(-10%)', opacity: 0, offset: 0 }),
+                style({
+                  transform: 'translateX(2%)',
+                  opacity: 0.8,
+                  offset: 0.5,
+                }),
+                style({ transform: 'translateX(0)', opacity: 1, offset: 1 }),
+              ]),
+            ),
+          ),
+        ]),
+      ]),
+    ]),
+  ],
 })
 export class AppComponent {}
