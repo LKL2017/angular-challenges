@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import { DEFAULT_TIMER, TimerToken } from './data';
 import { TimerContainerComponent } from './timer-container.component';
 
 @Component({
   selector: 'app-video',
   standalone: true,
   imports: [TimerContainerComponent],
+  providers: [{ provide: TimerToken, useValue: DEFAULT_TIMER }],
   template: `
     <div class="flex gap-2">
       Video Call Timer:
